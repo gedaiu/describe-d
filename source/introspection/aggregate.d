@@ -5,6 +5,7 @@ import introspection.type;
 import introspection.attribute;
 import introspection.protection;
 import introspection.callable;
+import introspection.enum_;
 
 version(unittest) {
   import fluent.asserts;
@@ -52,6 +53,9 @@ struct Aggregate {
 
   ///
   Callable[] methods;
+
+  ///
+  Enum[] enums;
 }
 
 /// Describes classes, structs, unions and interfaces
@@ -84,7 +88,10 @@ Aggregate describeAggregate(T)() if(isAggregateType!T) {
 
         aggregate.methods ~= callable;
       }
-    }} else {
+    }}
+    else static if(is(M == enum)) {
+      aggregate.enums ~= describeEnum!M;
+    } else {
       auto property = Property(member, describeType!(typeof(M)), __traits(getProtection, M).toProtection);
       property.attributes = describeAttributes!(__traits(getAttributes, M));
       property.isStatic = hasStaticMember!(T, member);
@@ -329,4 +336,18 @@ unittest {
   result.methods[1].name.should.equal("name");
   result.methods[1].isStatic.should.equal(false);
   result.methods[1].parameters.length.should.equal(1);
+}
+
+/// It should describe enums defined in classes
+unittest {
+  class Test {
+    enum Other : int {
+      a, b, c, d
+    }
+  }
+
+  auto result = describeAggregate!Test;
+
+  result.enums.length.should.equal(1);
+  result.enums[0].name.should.equal("Other");
 }

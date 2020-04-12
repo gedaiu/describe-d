@@ -2,6 +2,7 @@ module introspection.aggregate;
 
 import std.traits;
 import introspection.type;
+import introspection.location;
 import introspection.attribute;
 import introspection.protection;
 import introspection.callable;
@@ -67,6 +68,9 @@ struct Aggregate {
 
   ///
   Template[] templates;
+
+  ///
+  Location location;
 }
 
 /// Describes classes, structs, unions and interfaces
@@ -121,6 +125,9 @@ Aggregate describeAggregate(T)() if(isAggregateType!T) {
     }
   }}
 
+  auto location = __traits(getLocation, T);
+  aggregate.location = Location(location[0], location[1], location[2]);
+
   return aggregate;
 }
 
@@ -145,6 +152,10 @@ unittest {
   result.interfaces.length.should.equal(2);
   result.interfaces[0].name.should.equal("I1");
   result.interfaces[1].name.should.equal("I2");
+
+  result.location.file.should.equal("source/introspection/aggregate.d");
+  result.location.line.should.be.greaterThan(0);
+  result.location.column.should.equal(3);
 }
 
 /// It should describe struct attributes

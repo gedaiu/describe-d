@@ -34,6 +34,9 @@ struct Type {
   bool isArray;
 
   ///
+  bool isEnum;
+
+  ///
   bool isAssociativeArray;
 
   /// The keys used by the array
@@ -90,6 +93,12 @@ Type describeType(T)() {
     type.isInterface = true;
   }
 
+  static if(is(T == enum)) {
+    type.isEnum = true;
+    type.isBasicType = false;
+    type.isBuiltinType = false;
+  }
+
   static if(isArray!T) {
     type.isArray = true;
     type.keyType = "size_t";
@@ -126,7 +135,7 @@ Type describeType(T)() {
 }
 
 /// ditto
-Type describeType(alias T)() {
+Type describeType(alias T)() if(!is(T == enum)) {
   auto type = describeType!(typeof(T));
 
   static if(is(typeof(T)) && !is(typeof(&T))) {
@@ -135,6 +144,7 @@ Type describeType(alias T)() {
 
   return type;
 }
+
 
 /// It should describe an int
 unittest {
@@ -384,6 +394,30 @@ unittest {
   result.isClass.should.equal(false);
   result.isUnion.should.equal(false);
   result.isInterface.should.equal(true);
+  result.isBasicType.should.equal(false);
+  result.isBuiltinType.should.equal(false);
+  result.isConst.should.equal(false);
+  result.isInout.should.equal(false);
+  result.isImmutable.should.equal(false);
+  result.isShared.should.equal(false);
+}
+
+/// It should describe an enum
+unittest {
+  enum Test {
+    a,b,c
+  }
+
+  auto result = describeType!Test;
+
+  result.name.should.equal("Test");
+  result.unqualName.should.equal("Test");
+
+  result.isStruct.should.equal(false);
+  result.isClass.should.equal(false);
+  result.isUnion.should.equal(false);
+  result.isInterface.should.equal(false);
+  result.isEnum.should.equal(true);
   result.isBasicType.should.equal(false);
   result.isBuiltinType.should.equal(false);
   result.isConst.should.equal(false);

@@ -16,7 +16,8 @@ Type describe(T)() if(isBuiltInType!T) {
 
 /// It should describe an int
 unittest {
-  describeType!int.name.should.equal("int");
+  enum result = describeType!int;
+  result.name.should.equal("int");
 }
 
 /// Describe a build in type
@@ -28,7 +29,7 @@ Callable describe(alias T)() if(isCallable!T) {
 unittest {
   void test() { }
 
-  auto result = describe!test;
+  enum result = describe!test;
 
   result.name.should.equal("test");
   result.type.name.should.equal("pure nothrow @nogc @safe void()");

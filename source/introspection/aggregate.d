@@ -6,6 +6,7 @@ import introspection.attribute;
 import introspection.protection;
 import introspection.callable;
 import introspection.enum_;
+import introspection.manifestConstant;
 
 version(unittest) {
   import fluent.asserts;
@@ -56,6 +57,9 @@ struct Aggregate {
 
   ///
   Enum[] enums;
+
+  ///
+  ManifestConstant[] manifestConstants;
 }
 
 /// Describes classes, structs, unions and interfaces
@@ -89,9 +93,13 @@ Aggregate describeAggregate(T)() if(isAggregateType!T) {
         aggregate.methods ~= callable;
       }
     }}
+    else static if(isManifestConstant!(T, member)) {
+      aggregate.manifestConstants ~= describeManifestConstant!(T, member);
+    }
     else static if(is(M == enum)) {
       aggregate.enums ~= describeEnum!M;
-    } else {
+    }
+    else {
       auto property = Property(member, describeType!(typeof(M)), __traits(getProtection, M).toProtection);
       property.attributes = describeAttributes!(__traits(getAttributes, M));
       property.isStatic = hasStaticMember!(T, member);
@@ -350,4 +358,16 @@ unittest {
 
   result.enums.length.should.equal(1);
   result.enums[0].name.should.equal("Other");
+}
+
+/// It should describe a manifest constant
+unittest {
+  class Test {
+    enum constant = 4;
+  }
+
+  auto result = describeAggregate!Test;
+
+  result.manifestConstants.length.should.equal(1);
+  result.manifestConstants[0].name.should.equal("constant");
 }

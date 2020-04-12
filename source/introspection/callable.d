@@ -4,6 +4,7 @@ import introspection.type;
 import introspection.parameter;
 import introspection.attribute;
 import introspection.location;
+import introspection.protection;
 
 import std.traits;
 
@@ -30,6 +31,12 @@ struct Callable {
 
   ///
   Location location;
+
+  ///
+  Protection protection;
+
+  ///
+  bool isStatic;
 }
 
 /// Describes a callable
@@ -66,7 +73,9 @@ Callable describeCallable(alias T)() if(isCallable!T) {
     describeType!(ReturnType!T),
     params,
     describeAttributes!T,
-    Location(location[0], location[1], location[2])
+    Location(location[0], location[1], location[2]),
+    __traits(getProtection, T).toProtection,
+    __traits(isStaticFunction, T)
   );
 }
 

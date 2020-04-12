@@ -2,6 +2,7 @@ module described;
 
 import introspection.type;
 import introspection.callable;
+import introspection.aggregate;
 
 import std.traits;
 
@@ -10,7 +11,7 @@ version(unittest) {
 }
 
 /// Describe a build in type
-Type describe(T)() if(isBuiltInType!T) {
+Type describe(T)() if(isBuiltinType!T) {
   return describeType!T;
 }
 
@@ -33,4 +34,18 @@ unittest {
 
   result.name.should.equal("test");
   result.type.name.should.equal("pure nothrow @nogc @safe void()");
+}
+
+/// Describe a build in type
+Aggregate describe(T)() if(isAggregateType!T) {
+  return describeAggregate!T;
+}
+
+/// It should describe a class
+unittest {
+  class C3 { }
+
+  auto result = describe!C3;
+
+  result.name.should.equal("C3");
 }

@@ -13,9 +13,14 @@ struct Attribute {
 
 /// Returns the list of attributes associated with T
 Attribute[] describeAttributes(alias T)() {
+  return describeAttributes!(__traits(getAttributes, T));
+}
+
+/// Returns the list of attributes associated with T
+Attribute[] describeAttributes(T...)() {
   Attribute[] list;
 
-  static foreach(attr; __traits(getAttributes, T)) {
+  static foreach(attr; T) {
     list ~= Attribute(attr.stringof, describeType!(typeof(attr)));
   }
 

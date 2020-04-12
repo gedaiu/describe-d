@@ -19,6 +19,9 @@ struct Type {
   string unqualName;
 
   ///
+  bool isStruct;
+
+  ///
   bool isArray;
 
   ///
@@ -62,6 +65,9 @@ Type describeType(T)() {
   type.isBasicType = isBasicType!T;
   type.isBuiltinType = isBuiltinType!T;
 
+  static if(is(T == struct)) {
+    type.isStruct = true;
+  }
 
   static if(isArray!T) {
     type.isArray = true;
@@ -285,4 +291,22 @@ unittest {
   result.isAssociativeArray.should.equal(true);
   result.keyType.should.equal("ulong");
   result.valueType.should.equal("int[ulong][]");
+}
+
+/// It should describe a struct
+unittest {
+  struct Test {}
+
+  auto result = describeType!Test;
+
+  result.name.should.equal("Test");
+  result.unqualName.should.equal("Test");
+
+  result.isStruct.should.equal(true);
+  result.isBasicType.should.equal(false);
+  result.isBuiltinType.should.equal(false);
+  result.isConst.should.equal(false);
+  result.isInout.should.equal(false);
+  result.isImmutable.should.equal(false);
+  result.isShared.should.equal(false);
 }

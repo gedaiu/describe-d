@@ -5,6 +5,7 @@ import std.string;
 
 import introspection.type;
 import introspection.location;
+import introspection.protection;
 
 version(unittest) {
   import fluent.asserts;
@@ -32,6 +33,9 @@ struct Enum {
 
   ///
   Location location;
+
+  ///
+  Protection protection;
 }
 
 ////
@@ -47,7 +51,9 @@ Enum describeEnum(T)() if(is(T == enum)){
   enum_.type = describeType!T;
 
   auto location = __traits(getLocation, T);
+
   enum_.location = Location(location[0], location[1], location[2]);
+  enum_.protection = __traits(getProtection, T).toProtection;
 
   return enum_;
 }
@@ -72,4 +78,6 @@ unittest {
   result.location.file.should.equal("source/introspection/enum_.d");
   result.location.line.should.be.greaterThan(0);
   result.location.column.should.equal(3);
+
+  result.protection.should.equal(Protection.public_);
 }

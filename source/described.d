@@ -3,6 +3,7 @@ module described;
 import introspection.type;
 import introspection.callable;
 import introspection.aggregate;
+import introspection.enum_;
 
 import std.traits;
 
@@ -48,6 +49,20 @@ unittest {
   auto result = describe!C3;
 
   result.name.should.equal("C3");
+}
+
+/// Describe an enum
+auto describe(alias T)() if(is(T == enum)) {
+  return describeEnum!T;
+}
+
+/// It should describe an enum
+unittest {
+  enum Something { A, B }
+
+  auto result = describe!Something;
+
+  result.name.should.equal("Something");
 }
 
 /// Get a symbol from the type definition

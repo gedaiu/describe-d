@@ -58,9 +58,21 @@ template fromType(alias type){
 
 version(unittest) class RandomClass { }
 
-/// It should describe a class by type
+/// It should get the symbol from the type definition
 unittest {
   alias T = fromType!(describe!RandomClass.type);
 
   static assert(is(T == RandomClass));
+}
+
+/// Describe a type
+Aggregate describe(Type type)() if(type.isClass || type.isStruct || type.isUnion || type.isInterface) {
+  return describe!(fromType!type);
+}
+
+/// It should describe a class by type
+unittest {
+  enum result = describe!(describe!RandomClass.type);
+
+  result.name.should.equal("RandomClass");
 }

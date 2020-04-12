@@ -22,6 +22,9 @@ struct Type {
   bool isStruct;
 
   ///
+  bool isClass;
+
+  ///
   bool isArray;
 
   ///
@@ -67,6 +70,10 @@ Type describeType(T)() {
 
   static if(is(T == struct)) {
     type.isStruct = true;
+  }
+
+  static if(is(T == class)) {
+    type.isClass = true;
   }
 
   static if(isArray!T) {
@@ -303,6 +310,25 @@ unittest {
   result.unqualName.should.equal("Test");
 
   result.isStruct.should.equal(true);
+  result.isBasicType.should.equal(false);
+  result.isBuiltinType.should.equal(false);
+  result.isConst.should.equal(false);
+  result.isInout.should.equal(false);
+  result.isImmutable.should.equal(false);
+  result.isShared.should.equal(false);
+}
+
+/// It should describe a class
+unittest {
+  class Test {}
+
+  auto result = describeType!Test;
+
+  result.name.should.equal("Test");
+  result.unqualName.should.equal("Test");
+
+  result.isStruct.should.equal(false);
+  result.isClass.should.equal(true);
   result.isBasicType.should.equal(false);
   result.isBuiltinType.should.equal(false);
   result.isConst.should.equal(false);

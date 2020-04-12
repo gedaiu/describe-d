@@ -47,6 +47,9 @@ struct Aggregate {
   Type[] interfaces;
 
   ///
+  Type[] nested;
+
+  ///
   Attribute[] attributes;
 
   ///
@@ -98,6 +101,9 @@ Aggregate describeAggregate(T)() if(isAggregateType!T) {
     }
     else static if(is(M == enum)) {
       aggregate.enums ~= describeEnum!M;
+    }
+    else static if(is(M == class) || is(M == struct) || is(M == interface) || is(M == union)) {
+      aggregate.nested ~= describeType!M;
     }
     else {
       auto property = Property(member, describeType!(typeof(M)), __traits(getProtection, M).toProtection);
@@ -370,4 +376,16 @@ unittest {
 
   result.manifestConstants.length.should.equal(1);
   result.manifestConstants[0].name.should.equal("constant");
+}
+
+/// It should describe a struct type defined inside a class
+unittest {
+  class Test {
+    struct Other {}
+  }
+
+  auto result = describeAggregate!Test;
+
+  result.nested.length.should.equal(1);
+  result.nested[0].name.should.equal("Other");
 }

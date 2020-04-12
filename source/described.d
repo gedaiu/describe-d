@@ -49,3 +49,18 @@ unittest {
 
   result.name.should.equal("C3");
 }
+
+/// Get a symbol from the type definition
+template fromType(alias type){
+  mixin(`import ` ~ type.module_ ~ ` : ` ~ type.name ~ `;`);
+  mixin(`alias fromType = ` ~ type.fullyQualifiedName ~ `;`);
+}
+
+version(unittest) class RandomClass { }
+
+/// It should describe a class by type
+unittest {
+  alias T = fromType!(describe!RandomClass.type);
+
+  static assert(is(T == RandomClass));
+}

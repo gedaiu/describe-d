@@ -21,6 +21,9 @@ struct Type {
   ///
   string fullyQualifiedName;
 
+  /// The name of the module where the symbol is defined;
+  string module_;
+
   ///
   bool isStruct;
 
@@ -77,6 +80,10 @@ Type describeType(T)() {
   type.name = T.stringof;
   type.unqualName = Unqual!T.stringof;
   type.fullyQualifiedName = fullyQualifiedName!T;
+
+  static if(__traits(compiles, moduleName!T)) {
+    type.module_ = moduleName!T;
+  }
 
   type.isBasicType = isBasicType!T;
   type.isBuiltinType = isBuiltinType!T;
@@ -337,7 +344,7 @@ unittest {
 
   result.name.should.equal("Test");
   result.unqualName.should.equal("Test");
-  result.fullyQualifiedName.should.equal("introspection.type.__unittest_L333_C1.Test");
+  result.fullyQualifiedName.should.equal("introspection.type.__unittest_L340_C1.Test");
 
   result.isStruct.should.equal(true);
   result.isBasicType.should.equal(false);
@@ -418,6 +425,7 @@ unittest {
 
   result.name.should.equal("Test");
   result.unqualName.should.equal("Test");
+  result.module_.should.equal("introspection.type");
 
   result.isStruct.should.equal(false);
   result.isClass.should.equal(false);

@@ -65,6 +65,31 @@ Callable describeCallable(alias T)() if(isCallable!T) {
     i++;
   }
 
+  i = 0;
+  static foreach (S; ParameterStorageClassTuple!T) {
+    static if(S == ParameterStorageClass.scope_) {
+      params[i].isScope = true;
+    }
+
+    static if(S == ParameterStorageClass.out_) {
+      params[i].isOut = true;
+    }
+
+    static if(S == ParameterStorageClass.ref_) {
+      params[i].isRef = true;
+    }
+
+    static if(S == ParameterStorageClass.lazy_) {
+      params[i].isLazy = true;
+    }
+
+    static if(S == ParameterStorageClass.return_) {
+      params[i].isReturn = true;
+    }
+
+    i++;
+  }
+
   auto location = __traits(getLocation, T);
 
   return Callable(
@@ -133,6 +158,12 @@ unittest {
   result.parameters[0].type.name.should.equal("string");
   result.parameters[0].default_.value.should.equal(`"test"`);
   result.parameters[0].default_.exists.should.equal(true);
+
+  result.parameters[0].isLazy.should.equal(false);
+  result.parameters[0].isScope.should.equal(false);
+  result.parameters[0].isOut.should.equal(false);
+  result.parameters[0].isRef.should.equal(false);
+  result.parameters[0].isReturn.should.equal(false);
 }
 
 /// It should describe a function attributes
@@ -149,4 +180,17 @@ unittest {
   result.attributes[0].type.name.should.equal(`string`);
   result.attributes[1].name.should.equal("0");
   result.attributes[1].type.name.should.equal(`int`);
+}
+
+/// It should find the parameter storage classes
+unittest {
+  void test(scope Object, out int, ref int, lazy int, return Object) { }
+
+  auto result = describeCallable!test;
+
+  result.parameters[0].isScope.should.equal(true);
+  result.parameters[1].isOut.should.equal(true);
+  result.parameters[2].isRef.should.equal(true);
+  result.parameters[3].isLazy.should.equal(true);
+  result.parameters[4].isReturn.should.equal(true);
 }

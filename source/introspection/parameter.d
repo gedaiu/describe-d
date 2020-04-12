@@ -21,4 +21,19 @@ struct Parameter {
 
   ///
   ParameterDefault default_;
+
+  ///
+  bool isScope;
+
+  ///
+  bool isOut;
+
+  ///
+  bool isRef;
+
+  ///
+  bool isLazy;
+
+  ///
+  bool isReturn;
 }

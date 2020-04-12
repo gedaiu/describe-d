@@ -1,10 +1,13 @@
 module introspection.enum_;
 
+
+/// Stores information about enums
 struct Enum {
   ///
   string name;
 }
 
+////
 Enum describeEnum(T)() {
   Enum enum_;
 

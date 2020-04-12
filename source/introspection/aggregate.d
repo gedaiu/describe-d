@@ -7,6 +7,7 @@ import introspection.protection;
 import introspection.callable;
 import introspection.enum_;
 import introspection.manifestConstant;
+import introspection.template_;
 
 version(unittest) {
   import fluent.asserts;
@@ -63,6 +64,9 @@ struct Aggregate {
 
   ///
   ManifestConstant[] manifestConstants;
+
+  ///
+  Template[] templates;
 }
 
 /// Describes classes, structs, unions and interfaces
@@ -104,6 +108,9 @@ Aggregate describeAggregate(T)() if(isAggregateType!T) {
     }
     else static if(is(M == class) || is(M == struct) || is(M == interface) || is(M == union)) {
       aggregate.nested ~= describeType!M;
+    }
+    else static if(__traits(isTemplate, M)) {
+      aggregate.templates ~= describeTemplate!M;
     }
     else {
       auto property = Property(member, describeType!(typeof(M)), __traits(getProtection, M).toProtection);
@@ -388,4 +395,37 @@ unittest {
 
   result.nested.length.should.equal(1);
   result.nested[0].name.should.equal("Other");
+}
+
+/// It should describe a template defined inside a class
+unittest {
+  class Test {
+    struct Other(T) {}
+  }
+
+  auto result = describeAggregate!Test;
+
+  result.nested.length.should.equal(0);
+
+  result.templates.length.should.equal(1);
+  result.templates[0].name.should.equal("Other");
+}
+
+/// It should describe an instantiated template
+unittest {
+  class Test(T) {
+    T bar(T val) { return val; }
+  }
+
+  alias TestInstantiated = Test!string;
+
+  auto result = describeAggregate!TestInstantiated;
+
+  result.name.should.equal("Test!string");
+  result.nested.length.should.equal(0);
+  result.templates.length.should.equal(0);
+
+  result.methods.length.should.equal(6);
+  result.methods[0].name.should.equal("bar");
+  result.methods[0].returns.name.should.equal("string");
 }

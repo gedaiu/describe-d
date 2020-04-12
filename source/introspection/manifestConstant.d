@@ -1,5 +1,6 @@
 module introspection.manifestConstant;
 
+/// Stores information about manifest constants
 struct ManifestConstant {
   ///
   string name;

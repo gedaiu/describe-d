@@ -2,7 +2,8 @@ module introspection.parameter;
 
 import introspection.type;
 
-///
+
+/// Stores information about default parameter value
 struct ParameterDefault {
   ///
   string value;

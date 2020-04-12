@@ -6,6 +6,10 @@ version(unittest) {
   import fluent.asserts;
 }
 
+///
+template ArrayValueType(T : T[]) { alias ArrayValueType = T; }
+
+
 /// Stores information about types
 struct Type {
   /// The type name, how it was defined or used in the source code
@@ -13,6 +17,18 @@ struct Type {
 
   /// The type name without qualifiers
   string unqualName;
+
+  ///
+  bool isArray;
+
+  ///
+  bool isAssociativeArray;
+
+  /// The keys used by the array
+  string keyType;
+
+  /// The array values
+  string valueType;
 
   /// true if it is scalar type or void
   bool isBasicType;
@@ -31,18 +47,33 @@ struct Type {
 
   /// true if it has `shared` qualifier
   bool isShared;
-}
 
+  /// true if it is manifest constant. eg. `enum name = "test";`
+  bool isManifestConstant;
+}
 
 /// Describe a type
 Type describeType(T)() {
-  auto type = Type(
-    T.stringof,
-    Unqual!T.stringof
-  );
+  Type type;
+
+  type.name = T.stringof;
+  type.unqualName = Unqual!T.stringof;
 
   type.isBasicType = isBasicType!T;
   type.isBuiltinType = isBuiltinType!T;
+
+
+  static if(isArray!T) {
+    type.isArray = true;
+    type.keyType = "size_t";
+    type.valueType = ArrayValueType!T.stringof;
+  }
+
+  static if(isAssociativeArray!T) {
+    type.isAssociativeArray = true;
+    type.keyType = KeyType!T.stringof;
+    type.valueType = ValueType!T.stringof;
+  }
 
   static if(is(T == const)) {
     type.isConst = true;
@@ -58,6 +89,21 @@ Type describeType(T)() {
 
   static if(is(T == shared)) {
     type.isShared = true;
+  }
+
+  static if(is(typeof(T)) && !is(typeof(&T))) {
+    type.isManifestConstant = true;
+  }
+
+  return type;
+}
+
+/// ditto
+Type describeType(alias T)() {
+  auto type = describeType!(typeof(T));
+
+  static if(is(typeof(T)) && !is(typeof(&T))) {
+    type.isManifestConstant = true;
   }
 
   return type;
@@ -76,6 +122,14 @@ unittest {
   result.isInout.should.equal(false);
   result.isImmutable.should.equal(false);
   result.isShared.should.equal(false);
+}
+
+/// It should describe an int at compile time
+unittest {
+  enum result = describeType!int;
+
+  result.name.should.equal("int");
+  result.unqualName.should.equal("int");
 }
 
 /// It should describe a const int
@@ -136,4 +190,99 @@ unittest {
   result.isInout.should.equal(false);
   result.isImmutable.should.equal(false);
   result.isShared.should.equal(true);
+}
+
+/// It should describe a int pointer
+unittest {
+  auto result = describeType!(int*);
+
+  result.name.should.equal("int*");
+  result.unqualName.should.equal("int*");
+
+  result.isBasicType.should.equal(false);
+  result.isBuiltinType.should.equal(false);
+  result.isConst.should.equal(false);
+  result.isInout.should.equal(false);
+  result.isImmutable.should.equal(false);
+  result.isShared.should.equal(false);
+}
+
+/// It should describe a manifest constant
+unittest {
+  enum a = "value";
+  auto result = describeType!(a);
+
+  result.name.should.equal("string");
+  result.unqualName.should.equal("string");
+
+  result.isBasicType.should.equal(false);
+  result.isBuiltinType.should.equal(true);
+  result.isConst.should.equal(false);
+  result.isInout.should.equal(false);
+  result.isImmutable.should.equal(false);
+  result.isShared.should.equal(false);
+  result.isManifestConstant.should.equal(true);
+}
+
+/// It shuld describe an array of ints
+unittest {
+  auto result = describeType!(int[]);
+
+  result.name.should.equal("int[]");
+  result.unqualName.should.equal("int[]");
+
+  result.isArray.should.equal(true);
+  result.keyType.should.equal("size_t");
+  result.valueType.should.equal("int");
+}
+
+/// It shuld describe an array of strings
+unittest {
+  auto result = describeType!(string[]);
+
+  result.name.should.equal("string[]");
+  result.unqualName.should.equal("string[]");
+
+  result.isArray.should.equal(true);
+  result.keyType.should.equal("size_t");
+  result.valueType.should.equal("string");
+}
+
+/// It shuld describe an assoc array of ints
+unittest {
+  auto result = describeType!(int[string]);
+
+  result.name.should.equal("int[string]");
+  result.unqualName.should.equal("int[string]");
+
+  result.isArray.should.equal(false);
+  result.isAssociativeArray.should.equal(true);
+  result.keyType.should.equal("string");
+  result.valueType.should.equal("int");
+}
+
+/// It shuld describe an assoc array of strings
+unittest {
+  auto result = describeType!(string[string]);
+
+  result.name.should.equal("string[string]");
+  result.unqualName.should.equal("string[string]");
+
+  result.isArray.should.equal(false);
+  result.isAssociativeArray.should.equal(true);
+  result.keyType.should.equal("string");
+  result.valueType.should.equal("string");
+}
+
+/// It shuld describe a nested array
+unittest {
+  auto result = describeType!(int[ulong][][ulong]);
+
+  result.name.should.equal("int[ulong][][ulong]");
+  result.unqualName.should.equal("int[ulong][][ulong]");
+
+  result.isArray.should.equal(false);
+  result.isAssociativeArray.should.equal(true);
+  result.keyType.should.equal("ulong");
+  result.valueType.should.equal("int[ulong][]");
 }

@@ -19,6 +19,9 @@ struct Type {
   string unqualName;
 
   ///
+  string fullyQualifiedName;
+
+  ///
   bool isStruct;
 
   ///
@@ -73,6 +76,7 @@ Type describeType(T)() {
 
   type.name = T.stringof;
   type.unqualName = Unqual!T.stringof;
+  type.fullyQualifiedName = fullyQualifiedName!T;
 
   type.isBasicType = isBasicType!T;
   type.isBuiltinType = isBuiltinType!T;
@@ -152,6 +156,7 @@ unittest {
 
   result.name.should.equal("int");
   result.unqualName.should.equal("int");
+  result.fullyQualifiedName.should.equal("int");
 
   result.isBasicType.should.equal(true);
   result.isBuiltinType.should.equal(true);
@@ -332,6 +337,7 @@ unittest {
 
   result.name.should.equal("Test");
   result.unqualName.should.equal("Test");
+  result.fullyQualifiedName.should.equal("introspection.type.__unittest_L333_C1.Test");
 
   result.isStruct.should.equal(true);
   result.isBasicType.should.equal(false);

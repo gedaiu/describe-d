@@ -1,0 +1,17 @@
+{
+	"authors": [
+		"Szabo Bogdan"
+	],
+	"copyright": "Copyright © 2020, Szabo Bogdan",
+	"description": "Library that adds a structure for code introspection",
+	"license": "MIT",
+	"name": "describe",
+
+	"configurations": [{
+		"name": "trial",
+		"dependencies": {
+				"fluent-asserts": "~>0.13.3"
+			}
+		}
+	]
+}

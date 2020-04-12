@@ -9,6 +9,7 @@ import introspection.callable;
 import introspection.enum_;
 import introspection.manifestConstant;
 import introspection.template_;
+import introspection.protection;
 
 version(unittest) {
   import fluent.asserts;
@@ -71,6 +72,9 @@ struct Aggregate {
 
   ///
   Location location;
+
+  ///
+  Protection protection;
 }
 
 /// Describes classes, structs, unions and interfaces
@@ -128,6 +132,8 @@ Aggregate describeAggregate(T)() if(isAggregateType!T) {
   auto location = __traits(getLocation, T);
   aggregate.location = Location(location[0], location[1], location[2]);
 
+  aggregate.protection = __traits(getProtection, T).toProtection;
+
   return aggregate;
 }
 
@@ -156,6 +162,8 @@ unittest {
   result.location.file.should.equal("source/introspection/aggregate.d");
   result.location.line.should.be.greaterThan(0);
   result.location.column.should.equal(3);
+
+  result.protection = Protection.public_;
 }
 
 /// It should describe struct attributes

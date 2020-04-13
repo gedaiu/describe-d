@@ -13,7 +13,6 @@ import described;
 
 /// Introspecting modules
 assert(describe!(std.array).name == "module array");
-assert(describe!(std.array).fullyQualifiedName == "module array");
 assert(describe!(std.array).fullyQualifiedName == "std.array");
 assert(describe!(std.array).functions.length == 1);
 assert(describe!(std.array).templates.length == 31);

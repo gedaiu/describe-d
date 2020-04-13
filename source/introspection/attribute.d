@@ -23,9 +23,9 @@ Attribute[] describeAttributeList(T...)() {
 
   static foreach(attr; T) {
     static if(isCallable!(attr)) {
-      list ~= Attribute(__traits(identifier, attr)), describeType!(typeof(attr));
+      list ~= Attribute(__traits(identifier, attr), describeType!(typeof(attr)));
     } else static if(isType!(attr)) {
-      list ~= Attribute(attr.stringof), describeType!(attr);
+      list ~= Attribute(attr.stringof, describeType!(attr));
     } else static if(__traits(compiles, attr.stringof)) {
       list ~= Attribute(attr.stringof, describeType!(typeof(attr)));
     }

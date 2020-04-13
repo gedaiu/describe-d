@@ -87,9 +87,9 @@ Aggregate describeAggregate(T, bool withUnitTests = false)() if(isAggregateType!
     alias M = __traits(getMember, T, member);
 
     static if(isCallable!M) {
-      static foreach(index, overload; __traits(getOverloads, T, member)) {
+      static foreach(index, overload; __traits(getOverloads, T, member)) {{
         aggregate.methods ~= describeCallable!(overload, index);
-      }
+      }}
     }
     else static if(isManifestConstant!(T, member)) {
       aggregate.manifestConstants ~= describeManifestConstant!(T, member);
@@ -455,6 +455,7 @@ unittest {
   enum result = describeAggregate!(MockClass, true);
   result.methods[0].attributes.length.should.equal(3);
   result.methods[0].attributes[0].name.should.equal("mapper");
+  result.methods[0].attributes[0].type.name.should.equal("nothrow @trusted void()");
   result.methods[0].attributes[1].name.should.equal("Mapper");
   result.methods[0].attributes[2].name.should.equal(`"mapper"`);
 }

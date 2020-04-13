@@ -10,6 +10,7 @@ import introspection.template_;
 import introspection.location;
 import introspection.protection;
 import introspection.property;
+import introspection.unittest_;
 import introspection.manifestConstant;
 
 version(unittest) {
@@ -38,6 +39,9 @@ struct Module {
 
   ///
   ManifestConstant[] manifestConstants;
+
+  ///
+  UnitTest[] unitTests;
 
   ///
   Location location;
@@ -75,7 +79,10 @@ Module describeModule(alias T)() if(__traits(isModule, T)) {
     else {
       module_.globals ~= describeProperty!M;
     }
+
   }}
+
+  module_.unitTests = describeUnitTests!T;
 
   return module_;
 }
@@ -114,6 +121,10 @@ unittest {
   result.manifestConstants.length.should.equal(1);
   result.manifestConstants[0].name.should.equal("someManifestConstant");
 
+  /// check unittests
+
+
+  ///
   result.location.file.should.equal("source/introspection/test/moduleDef.d");
   result.location.line.should.equal(0);
   result.location.column.should.equal(0);

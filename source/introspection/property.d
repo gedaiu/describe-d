@@ -36,11 +36,10 @@ Property describeProperty(T, string member)() {
   return property;
 }
 
-/// Describe a property
+/// ditto
 Property describeProperty(alias T)() {
   auto property = Property(T.stringof, describeType!(typeof(T)), __traits(getProtection, T).toProtection);
   property.attributes = describeAttributes!(__traits(getAttributes, T));
-  /// property.isStatic = hasStaticMember!(T, member);
 
   return property;
 }

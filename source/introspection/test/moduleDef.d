@@ -16,3 +16,6 @@ private void privateFunction() {}
 
 template TestTpl(T) { }
 void templatedFunction(T)() {}
+
+unittest { }
+@safe unittest { }

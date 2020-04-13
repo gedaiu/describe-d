@@ -12,7 +12,7 @@ struct Attribute {
 }
 
 /// Returns the list of attributes associated with T
-Attribute[] describeAttributes(alias T)() {
+Attribute[] describeAttributes(alias T)() if(!is(typeof(T) == string)) {
   return describeAttributes!(__traits(getAttributes, T));
 }
 

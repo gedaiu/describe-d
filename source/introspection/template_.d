@@ -5,6 +5,9 @@ import std.string;
 import std.algorithm;
 import std.array;
 
+import introspection.location;
+import introspection.protection;
+
 version(unittest) {
   import fluent.asserts;
 }
@@ -75,9 +78,14 @@ struct Template {
   ///
   TemplateParameter[] templateParameters;
 
-
   ///
   TemplateParameter[] parameters;
+
+  ///
+  Protection protection;
+
+  ///
+  Location location;
 }
 
 ///
@@ -106,6 +114,11 @@ Template describeTemplate(alias T)() if(__traits(isTemplate, T)) {
   tpl.templateParameters = parseTemplateParameters(T.stringof);
   tpl.parameters = parseParameters(T.stringof);
 
+  auto location = __traits(getLocation, T);
+  tpl.location = Location(location[0], location[1], location[2]);
+
+  tpl.protection = __traits(getProtection, T).toProtection;
+
   return tpl;
 }
 
@@ -126,6 +139,12 @@ unittest {
   result.templateParameters[0].type.should.equal("");
   result.templateParameters[0].defaultValue.should.equal("");
   result.templateParameters[0].isVariadic.should.equal(false);
+
+  result.protection.should.equal(Protection.public_);
+
+  result.location.file.should.equal("source/introspection/template_.d");
+  result.location.line.should.be.greaterThan(0);
+  result.location.column.should.equal(3);
 }
 
 /// It should describe a templated function

@@ -5,6 +5,8 @@ DLang source code.
 
 # Usage
 
+## Introspection
+
 The library provides the `describe` template which returns a structure with
 the introspection result:
 
@@ -40,6 +42,27 @@ D type using `fromType`:
   alias T = fromType!(describe!RandomClass.type);
 
   static assert(is(T == RandomClass));
+```
+
+## Filtering
+
+The library provides the `where` structure which allows you to filter the `describe` result.
+
+### by attribute name
+
+```d
+  struct Test {
+    @("test") void foo() { }
+    @("other") void other() { }
+  }
+
+  /// Check that there is a method with the string attribute "test"
+  static assert(describe!Test.methods.where.attribute!`"test"`.exists);
+
+  /// Iterate over the methods with the "test" attribute
+  static foreach(method; describe!Test.methods.where.attribute!`"test"`) {
+    ...
+  }
 ```
 
 # License

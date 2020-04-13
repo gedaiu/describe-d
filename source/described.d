@@ -6,6 +6,8 @@ import introspection.aggregate;
 import introspection.module_;
 import introspection.enum_;
 
+public import selectors.where;
+
 import std.traits;
 
 version(unittest) {

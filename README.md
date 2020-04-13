@@ -78,8 +78,12 @@ The types can be queried by `name` or by the `fullyQualifiedName`
   static assert(moduleDescription.aggregates.where.typeIsAnyOf!("TestStructure", "TestClass").exists);
   static assert(moduleDescription.aggregates.where.typeIsAnyOf!("my.module.TestStructure", "my.module.TestClass").exists);
 
+  /// negations
   static assert(moduleDescription.aggregates.where.typeIsNot!"TestStructure".exists);
   static assert(moduleDescription.aggregates.where.typeIsNot!"my.module.TestStructure".exists);
+
+  static assert(moduleDescription.aggregates.where.typeIsNotAnyOf!("TestStructure", "TestClass").exists);
+  static assert(moduleDescription.aggregates.where.typeIsNotAnyOf!("my.module.TestStructure", "my.module.TestClass").exists);
 ```
 
 # License

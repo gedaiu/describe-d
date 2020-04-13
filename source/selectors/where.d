@@ -48,6 +48,17 @@ struct Where(T : U[], U) {
     return this;
   }
 
+    /// Filter by type name
+  auto typeIsNotAnyOf(T...)() {
+    enum string[] names = [ T ];
+
+    list = list.filter!(a =>
+      !names.filter!(name => a.type.name != name && a.type.fullyQualifiedName != name).empty)
+        .array;
+
+    return this;
+  }
+
   /// Check if the filtered list has at least one value
   bool exists() {
     return list.length > 0;
@@ -117,6 +128,10 @@ unittest {
   items.where.typeIsNot!"TestStructure".exists.should.equal(false);
   items.where.typeIsNot!"selectors.where.TestStructure".exists.should.equal(false);
   items.where.typeIsNot!"selectors.where.OtherStructure".exists.should.equal(true);
+
+  items.where.typeIsNotAnyOf!("TestStructure").exists.should.equal(false);
+  items.where.typeIsNotAnyOf!("selectors.where.TestStructure").exists.should.equal(false);
+  items.where.typeIsNotAnyOf!("selectors.where.OtherStructure").exists.should.equal(true);
 }
 
 /// Can iterate over filtered values

@@ -65,6 +65,17 @@ The library provides the `where` structure which allows you to filter the `descr
   }
 ```
 
+### by type
+
+The types can be queried by `name` or by the `fullyQualifiedName`
+
+```d
+  enum moduleDescription = describe!(my.module);
+
+  static assert(moduleDescription.aggregates.where.typeIs!"TestStructure".exists);
+  static assert(moduleDescription.aggregates.where.typeIs!"my.module.TestStructure".exists);
+```
+
 # License
 
 This project is licensed under the **MIT** license - see the [LICENSE](LICENSE) file for details.

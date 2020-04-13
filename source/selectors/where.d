@@ -16,9 +16,16 @@ struct Where(T : U[], U) {
     this.list = list;
   }
 
-  /// Filter by attribute value
-  auto attribute(string value)() {
-    list = list.filter!(a => !a.attributes.filter!(a => a.name == value).empty).array;
+  /// Filter by attribute name
+  auto attribute(string name)() {
+    list = list.filter!(a => !a.attributes.filter!(a => a.name == name).empty).array;
+
+    return this;
+  }
+
+  /// Filter by type name
+  auto typeIs(string name)() {
+    list = list.filter!(a => a.type.name == name || a.type.fullyQualifiedName == name).array;
 
     return this;
   }
@@ -70,6 +77,20 @@ unittest {
 
   hasAttribute.should.equal(true);
   items.where.attribute!"other".exists.should.equal(false);
+}
+
+version(unittest) { struct TestStructure { } }
+
+/// Filter callables by type name
+unittest {
+  import introspection.aggregate;
+
+  enum item = describeAggregate!TestStructure;
+  enum items = [ item ];
+
+  items.where.typeIs!"TestStructure".exists.should.equal(true);
+  items.where.typeIs!"selectors.where.TestStructure".exists.should.equal(true);
+  items.where.typeIs!"selectors.where.OtherStructure".exists.should.equal(false);
 }
 
 /// Can iterate over filtered values

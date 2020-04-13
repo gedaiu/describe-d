@@ -1,6 +1,7 @@
 module introspection.type;
 
 import std.traits;
+import introspection.manifestConstant;
 
 version(unittest) {
   import fluent.asserts;
@@ -149,7 +150,7 @@ Type describeType(T)() {
 Type describeType(alias T)() if(!is(T == enum)) {
   auto type = describeType!(typeof(T));
 
-  static if(is(typeof(T)) && !is(typeof(&T))) {
+  static if(isManifestConstant!T) {
     type.isManifestConstant = true;
   }
 
@@ -344,7 +345,7 @@ unittest {
 
   result.name.should.equal("Test");
   result.unqualName.should.equal("Test");
-  result.fullyQualifiedName.should.equal("introspection.type.__unittest_L340_C1.Test");
+  result.fullyQualifiedName.should.equal("introspection.type.__unittest_L341_C1.Test");
 
   result.isStruct.should.equal(true);
   result.isBasicType.should.equal(false);

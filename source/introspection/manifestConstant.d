@@ -45,9 +45,30 @@ ManifestConstant describeManifestConstant(T, string member)() {
   return manifestConstant;
 }
 
+/// ditto
+ManifestConstant describeManifestConstant(alias T, string member)() {
+  ManifestConstant manifestConstant;
+
+  manifestConstant.name = member;
+  manifestConstant.value = __traits(getMember, T, member).to!string;
+  manifestConstant.type = describeType!(__traits(getMember, T, member));
+
+  auto location = __traits(getLocation, __traits(getMember, T, member));
+  manifestConstant.location = Location(location[0], location[1], location[2]);
+
+  manifestConstant.protection = __traits(getProtection, __traits(getMember, T, member)).toProtection;
+
+  return manifestConstant;
+}
+
 /// Check if a member is manifest constant
 bool isManifestConstant(T, string name)() {
   mixin(`return is(typeof(T.init.` ~ name ~ `)) && !is(typeof(&T.init.` ~ name ~ `));`);
+}
+
+/// ditto
+bool isManifestConstant(alias T)() {
+  return is(typeof(T)) && !is(typeof(&T));
 }
 
 /// it should describe a public manifest constant

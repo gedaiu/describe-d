@@ -2,6 +2,8 @@ module introspection.test.moduleDef;
 
 version(unittest):
 
+enum someManifestConstant = 5;
+
 string globalVar = "test";
 
 struct TestStructure { }

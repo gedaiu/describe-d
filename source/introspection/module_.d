@@ -10,6 +10,7 @@ import introspection.template_;
 import introspection.location;
 import introspection.protection;
 import introspection.property;
+import introspection.manifestConstant;
 
 version(unittest) {
   import fluent.asserts;
@@ -34,6 +35,9 @@ struct Module {
 
   ///
   Property[] globals;
+
+  ///
+  ManifestConstant[] manifestConstants;
 
   ///
   Location location;
@@ -64,7 +68,11 @@ Module describeModule(alias T)() if(__traits(isModule, T)) {
     }
     else static if(!isExpressions!M && isAggregateType!M) {
       module_.aggregates ~= describeAggregate!M;
-    } else {
+    }
+    else static if(isManifestConstant!M) {
+      module_.manifestConstants ~= describeManifestConstant!(T, member);
+    }
+    else {
       module_.globals ~= describeProperty!M;
     }
   }}
@@ -101,6 +109,10 @@ unittest {
   /// check globals
   result.globals.length.should.equal(1);
   result.globals[0].name.should.equal("globalVar");
+
+  /// check manifest constants
+  result.manifestConstants.length.should.equal(1);
+  result.manifestConstants[0].name.should.equal("someManifestConstant");
 
   result.location.file.should.equal("source/introspection/test/moduleDef.d");
   result.location.line.should.equal(0);

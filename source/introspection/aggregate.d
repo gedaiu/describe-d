@@ -11,6 +11,7 @@ import introspection.manifestConstant;
 import introspection.template_;
 import introspection.protection;
 import introspection.property;
+import introspection.unittest_;
 
 version(unittest) {
   import fluent.asserts;
@@ -52,6 +53,9 @@ struct Aggregate {
 
   ///
   Template[] templates;
+
+  ///
+  UnitTest[] unitTests;
 
   ///
   Location location;
@@ -112,6 +116,8 @@ Aggregate describeAggregate(T)() if(isAggregateType!T) {
   aggregate.location = Location(location[0], location[1], location[2]);
 
   aggregate.protection = __traits(getProtection, T).toProtection;
+
+  aggregate.unitTests = describeUnitTests!T;
 
   return aggregate;
 }
@@ -426,4 +432,12 @@ unittest {
   result.methods.length.should.equal(6);
   result.methods[0].name.should.equal("bar");
   result.methods[0].returns.name.should.equal("string");
+}
+
+/// It should describe unittests defined in a struct
+unittest {
+  struct Test { unittest { } }
+
+  auto result = describeAggregate!Test;
+  result.unitTests.length.should.equal(1);
 }

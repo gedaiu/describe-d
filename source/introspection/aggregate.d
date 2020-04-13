@@ -10,29 +10,12 @@ import introspection.enum_;
 import introspection.manifestConstant;
 import introspection.template_;
 import introspection.protection;
+import introspection.property;
 
 version(unittest) {
   import fluent.asserts;
   import std.algorithm;
   import std.array;
-}
-
-///
-struct Property {
-  ///
-  string name;
-
-  ///
-  Type type;
-
-  ///
-  Protection protection;
-
-  ///
-  Attribute[] attributes;
-
-  ///
-  bool isStatic;
 }
 
 /// Stores information about attributes
@@ -121,11 +104,7 @@ Aggregate describeAggregate(T)() if(isAggregateType!T) {
       aggregate.templates ~= describeTemplate!M;
     }
     else {
-      auto property = Property(member, describeType!(typeof(M)), __traits(getProtection, M).toProtection);
-      property.attributes = describeAttributes!(__traits(getAttributes, M));
-      property.isStatic = hasStaticMember!(T, member);
-
-      aggregate.properties ~= property;
+      aggregate.properties ~= describeProperty!(T, member);
     }
   }}
 

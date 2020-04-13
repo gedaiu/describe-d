@@ -65,7 +65,7 @@ struct Aggregate {
 }
 
 /// Describes classes, structs, unions and interfaces
-Aggregate describeAggregate(T)() if(isAggregateType!T) {
+Aggregate describeAggregate(T, bool withUnitTests = false)() if(isAggregateType!T) {
   Aggregate aggregate;
 
   aggregate.name = Unqual!T.stringof;
@@ -87,14 +87,10 @@ Aggregate describeAggregate(T)() if(isAggregateType!T) {
     alias M = __traits(getMember, T, member);
 
     static if(isCallable!M) {
-      static foreach(overload; __traits(getOverloads, T, member)) {{
-
-        auto callable = describeCallable!(overload);
-
-
-        aggregate.methods ~= callable;
+      static foreach(index, overload; __traits(getOverloads, T, member)) {
+        aggregate.methods ~= describeCallable!(overload, index);
       }
-    }}
+    }
     else static if(isManifestConstant!(T, member)) {
       aggregate.manifestConstants ~= describeManifestConstant!(T, member);
     }
@@ -117,7 +113,9 @@ Aggregate describeAggregate(T)() if(isAggregateType!T) {
 
   aggregate.protection = __traits(getProtection, T).toProtection;
 
-  aggregate.unitTests = describeUnitTests!T;
+  static if(withUnitTests) {
+    aggregate.unitTests = describeUnitTests!T;
+  }
 
   return aggregate;
 }
@@ -438,6 +436,6 @@ unittest {
 unittest {
   struct Test { unittest { } }
 
-  auto result = describeAggregate!Test;
+  auto result = describeAggregate!(Test, true);
   result.unitTests.length.should.equal(1);
 }

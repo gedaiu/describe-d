@@ -48,14 +48,14 @@ struct Module {
 }
 
 /// Describe a module and containing members
-Module describeModule(alias T)() if(__traits(isModule, T)) {
+Module describeModule(alias T, bool withUnitTests = false)() if(__traits(isModule, T)) {
   Module module_;
 
   module_.name = T.stringof;
   module_.fullyQualifiedName = fullyQualifiedName!T;
   Location location;
 
-  static foreach(member; __traits(allMembers, T)) static if(member.stringof != `"object"`) {{
+  static foreach(member; __traits(allMembers, T)) static if(member.stringof != `"object"` && __traits(compiles, __traits(getMember, T, member))) {{
     alias M = __traits(getMember, T, member);
 
     static if(__traits(compiles, __traits(getLocation, M))) {
@@ -65,7 +65,9 @@ Module describeModule(alias T)() if(__traits(isModule, T)) {
     }
 
     static if(isCallable!M) {
-      module_.functions ~= describeCallable!M;
+      static foreach(index, overload; __traits(getOverloads, T, member)) {
+        module_.functions ~= describeCallable!(overload, index);
+      }
     }
     else static if(__traits(isTemplate, M)) {
       module_.templates ~= describeTemplate!M;
@@ -79,10 +81,11 @@ Module describeModule(alias T)() if(__traits(isModule, T)) {
     else static if(__traits(compiles, describeProperty!M)) {
       module_.globals ~= describeProperty!M;
     }
-
   }}
 
-  module_.unitTests = describeUnitTests!T;
+  static if(withUnitTests) {
+    module_.unitTests = describeUnitTests!T;
+  }
 
   return module_;
 }
@@ -91,7 +94,7 @@ Module describeModule(alias T)() if(__traits(isModule, T)) {
 unittest {
   import introspection.test.moduleDef;
 
-  auto result = describeModule!(introspection.test.moduleDef);
+  auto result = describeModule!(introspection.test.moduleDef, true);
 
   result.name.should.equal("module moduleDef");
   result.fullyQualifiedName.should.equal("introspection.test.moduleDef");
@@ -122,10 +125,40 @@ unittest {
   result.manifestConstants[0].name.should.equal("someManifestConstant");
 
   /// check unittests
-
+  result.unitTests.length.should.equal(2);
 
   ///
   result.location.file.should.equal("source/introspection/test/moduleDef.d");
   result.location.line.should.equal(0);
   result.location.column.should.equal(0);
+}
+
+/// It should be able to describe the std.array module
+unittest {
+  import std.array;
+
+  auto result = describeModule!(std.array);
+
+  result.name.should.equal("module array");
+  result.fullyQualifiedName.should.equal("std.array");
+
+  result.functions.length.should.equal(1);
+  result.functions[0].name.should.equal("_d_newarrayU");
+
+  result.templates.length.should.equal(31);
+}
+
+/// It should be able to describe the std.stdio module
+unittest {
+  import std.stdio;
+
+  auto result = describeModule!(std.stdio);
+
+  result.name.should.equal("module stdio");
+  result.fullyQualifiedName.should.equal("std.stdio");
+
+  result.functions.length.should.equal(22);
+  result.functions[0].name.should.equal("fputc_unlocked");
+
+  result.templates.length.should.equal(15);
 }

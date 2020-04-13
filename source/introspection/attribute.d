@@ -20,7 +20,7 @@ Attribute[] describeAttributes(alias T)() if(!is(typeof(T) == string)) {
 Attribute[] describeAttributes(T...)() {
   Attribute[] list;
 
-  static foreach(attr; T) {
+  static foreach(attr; T) static if(__traits(compiles, attr.stringof)) {
     list ~= Attribute(attr.stringof, describeType!(typeof(attr)));
   }
 

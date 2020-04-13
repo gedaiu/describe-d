@@ -111,8 +111,11 @@ Template describeTemplate(alias T)() if(__traits(isTemplate, T)) {
   Template tpl;
 
   tpl.name = __traits(identifier, T);
-  tpl.templateParameters = parseTemplateParameters(T.stringof);
-  tpl.parameters = parseParameters(T.stringof);
+
+  static if(__traits(compiles, T.stringof)) {
+    tpl.templateParameters = parseTemplateParameters(T.stringof);
+    tpl.parameters = parseParameters(T.stringof);
+  }
 
   auto location = __traits(getLocation, T);
   tpl.location = Location(location[0], location[1], location[2]);

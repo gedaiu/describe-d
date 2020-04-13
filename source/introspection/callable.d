@@ -7,6 +7,7 @@ import introspection.location;
 import introspection.protection;
 
 import std.traits;
+import std.typecons;
 
 version(unittest) {
   import fluent.asserts;
@@ -40,7 +41,7 @@ struct Callable {
 }
 
 /// Describes a callable
-Callable describeCallable(alias T)() if(isCallable!T) {
+Callable describeCallable(alias T, size_t overloadIndex = 0)() if(isCallable!T) {
   Parameter[] params;
   params.length = arity!T;
 
@@ -90,7 +91,12 @@ Callable describeCallable(alias T)() if(isCallable!T) {
     i++;
   }
 
-  auto location = __traits(getLocation, T);
+  static if(__traits(compiles, __traits(getLocation, T))) {
+    enum location = __traits(getLocation, T);
+  }
+  else {
+    enum location = tuple("unknown", 0, 0);
+  }
 
   return Callable(
     __traits(identifier, T),

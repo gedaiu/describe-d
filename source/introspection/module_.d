@@ -70,13 +70,13 @@ Module describeModule(alias T)() if(__traits(isModule, T)) {
     else static if(__traits(isTemplate, M)) {
       module_.templates ~= describeTemplate!M;
     }
-    else static if(!isExpressions!M && isAggregateType!M) {
+    else static if(isTypeTuple!M && isAggregateType!M) {
       module_.aggregates ~= describeAggregate!M;
     }
     else static if(isManifestConstant!M) {
       module_.manifestConstants ~= describeManifestConstant!(T, member);
     }
-    else {
+    else static if(__traits(compiles, describeProperty!M)) {
       module_.globals ~= describeProperty!M;
     }
 

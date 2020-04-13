@@ -3,6 +3,7 @@ module described;
 import introspection.type;
 import introspection.callable;
 import introspection.aggregate;
+import introspection.module_;
 import introspection.enum_;
 
 import std.traits;
@@ -35,6 +36,20 @@ unittest {
 
   result.name.should.equal("test");
   result.type.name.should.equal("pure nothrow @nogc @safe void()");
+}
+
+/// Describe a build in type
+Module describe(alias T)() if(__traits(isModule, T)) {
+  return describeModule!T;
+}
+
+/// It should describe a function
+unittest {
+  void test() { }
+
+  enum result = describe!(introspection.template_);
+
+  result.name.should.equal("module template_");
 }
 
 /// Describe a build in type

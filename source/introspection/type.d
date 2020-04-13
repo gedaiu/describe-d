@@ -348,7 +348,7 @@ unittest {
 
   result.name.should.equal("Test");
   result.unqualName.should.equal("Test");
-  result.fullyQualifiedName.should.equal("introspection.type.__unittest_L341_C1.Test");
+  result.fullyQualifiedName.should.equal("introspection.type.__unittest_L344_C1.Test");
 
   result.isStruct.should.equal(true);
   result.isBasicType.should.equal(false);

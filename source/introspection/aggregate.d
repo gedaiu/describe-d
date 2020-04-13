@@ -439,3 +439,22 @@ unittest {
   auto result = describeAggregate!(Test, true);
   result.unitTests.length.should.equal(1);
 }
+
+/// It should describe attributes that return structs
+unittest {
+  struct Mapper { }
+  Mapper mapper() {
+    return Mapper();
+  }
+
+  class MockClass {
+    @mapper @Mapper @("mapper")
+    void mapper() @trusted nothrow { }
+  }
+
+  enum result = describeAggregate!(MockClass, true);
+  result.methods[0].attributes.length.should.equal(3);
+  result.methods[0].attributes[0].name.should.equal("mapper");
+  result.methods[0].attributes[1].name.should.equal("Mapper");
+  result.methods[0].attributes[2].name.should.equal(`"mapper"`);
+}

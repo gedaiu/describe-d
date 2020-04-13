@@ -98,12 +98,14 @@ Callable describeCallable(alias T, size_t overloadIndex = 0)() if(isCallable!T) 
     enum location = tuple("unknown", 0, 0);
   }
 
+  enum attributes = describeAttributeList!(__traits(getAttributes, T));
+
   return Callable(
     __traits(identifier, T),
     describeType!(typeof(T)),
     describeType!(ReturnType!T),
     params,
-    describeAttributes!T,
+    attributes,
     Location(location[0], location[1], location[2]),
     __traits(getProtection, T).toProtection,
     __traits(isStaticFunction, T)

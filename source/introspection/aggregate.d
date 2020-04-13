@@ -81,7 +81,7 @@ Aggregate describeAggregate(T, bool withUnitTests = false)() if(isAggregateType!
     }
   }
 
-  aggregate.attributes = describeAttributes!T;
+  aggregate.attributes = describeAttributeList!(__traits(getAttributes, T));
 
   static foreach(member; __traits(allMembers, T)) static if(member != "this" && member != "Monitor") {{
     alias M = __traits(getMember, T, member);

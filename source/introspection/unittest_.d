@@ -33,7 +33,7 @@ UnitTest describeUnitTest(alias T)() {
 
   test.type = describeType!(typeof(T));
 
-  test.attributes = describeAttributes!(__traits(getAttributes, T));
+  test.attributes = describeAttributeList!(__traits(getAttributes, T));
 
   auto location = __traits(getLocation, T);
   test.location = Location(location[0], location[1], location[2]);

@@ -30,7 +30,7 @@ Property describeProperty(T, string member)() {
   alias M = __traits(getMember, T, member);
 
   auto property = Property(member, describeType!(typeof(M)), __traits(getProtection, M).toProtection);
-  property.attributes = describeAttributes!(__traits(getAttributes, M));
+  property.attributes = describeAttributeList!(__traits(getAttributes, M));
   property.isStatic = hasStaticMember!(T, member);
 
   return property;
@@ -39,7 +39,7 @@ Property describeProperty(T, string member)() {
 /// ditto
 Property describeProperty(alias T)() {
   auto property = Property(T.stringof, describeType!(typeof(T)), __traits(getProtection, T).toProtection);
-  property.attributes = describeAttributes!(__traits(getAttributes, T));
+  property.attributes = describeAttributeList!(__traits(getAttributes, T));
 
   return property;
 }

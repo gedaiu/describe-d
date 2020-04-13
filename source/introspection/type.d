@@ -80,7 +80,10 @@ Type describeType(T)() {
 
   type.name = T.stringof;
   type.unqualName = Unqual!T.stringof;
-  type.fullyQualifiedName = fullyQualifiedName!T;
+
+  static if(__traits(compiles, fullyQualifiedName!T)) {
+    type.fullyQualifiedName = fullyQualifiedName!T;
+  }
 
   static if(__traits(compiles, moduleName!T)) {
     type.module_ = moduleName!T;

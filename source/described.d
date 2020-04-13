@@ -23,7 +23,7 @@ unittest {
   result.name.should.equal("int");
 }
 
-/// Describe a build in type
+/// Describe a callable
 Callable describe(alias T)() if(isCallable!T) {
   return describeCallable!T;
 }
@@ -36,6 +36,18 @@ unittest {
 
   result.name.should.equal("test");
   result.type.name.should.equal("pure nothrow @nogc @safe void()");
+}
+
+/// It should describe class method
+unittest {
+  class Test {
+    void test() { }
+  }
+
+  enum result = describe!(Test.test);
+
+  result.name.should.equal("test");
+  result.type.name.should.equal("void()");
 }
 
 /// Describe a build in type
@@ -80,8 +92,20 @@ unittest {
   result.name.should.equal("Something");
 }
 
+/// Describe a type
+Aggregate describe(Type type)() if(type.isClass || type.isStruct || type.isUnion || type.isInterface) {
+  return describe!(fromType!type);
+}
+
+/// It should describe a class by type
+unittest {
+  enum result = describe!(describe!RandomClass.type);
+
+  result.name.should.equal("RandomClass");
+}
+
 /// Get a symbol from the type definition
-template fromType(alias type){
+template fromType(alias type) {
   mixin(`import ` ~ type.module_ ~ ` : ` ~ type.name ~ `;`);
   mixin(`alias fromType = ` ~ type.fullyQualifiedName ~ `;`);
 }
@@ -93,16 +117,4 @@ unittest {
   alias T = fromType!(describe!RandomClass.type);
 
   static assert(is(T == RandomClass));
-}
-
-/// Describe a type
-Aggregate describe(Type type)() if(type.isClass || type.isStruct || type.isUnion || type.isInterface) {
-  return describe!(fromType!type);
-}
-
-/// It should describe a class by type
-unittest {
-  enum result = describe!(describe!RandomClass.type);
-
-  result.name.should.equal("RandomClass");
 }

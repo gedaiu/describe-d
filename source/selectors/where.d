@@ -31,6 +31,17 @@ struct Where(T : U[], U) {
   }
 
   /// Filter by type name
+  auto typeIsAnyOf(T...)() {
+    enum string[] names = [ T ];
+
+    list = list.filter!(a =>
+      !names.filter!(name => a.type.name == name || a.type.fullyQualifiedName == name).empty)
+        .array;
+
+    return this;
+  }
+
+  /// Filter by type name
   auto typeIsNot(string name)() {
     list = list.filter!(a => a.type.name != name && a.type.fullyQualifiedName != name).array;
 
@@ -98,6 +109,10 @@ unittest {
   items.where.typeIs!"TestStructure".exists.should.equal(true);
   items.where.typeIs!"selectors.where.TestStructure".exists.should.equal(true);
   items.where.typeIs!"selectors.where.OtherStructure".exists.should.equal(false);
+
+  items.where.typeIsAnyOf!("TestStructure").exists.should.equal(true);
+  items.where.typeIsAnyOf!("selectors.where.TestStructure").exists.should.equal(true);
+  items.where.typeIsAnyOf!("selectors.where.OtherStructure").exists.should.equal(false);
 
   items.where.typeIsNot!"TestStructure".exists.should.equal(false);
   items.where.typeIsNot!"selectors.where.TestStructure".exists.should.equal(false);

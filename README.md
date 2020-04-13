@@ -74,6 +74,9 @@ The types can be queried by `name` or by the `fullyQualifiedName`
 
   static assert(moduleDescription.aggregates.where.typeIs!"TestStructure".exists);
   static assert(moduleDescription.aggregates.where.typeIs!"my.module.TestStructure".exists);
+
+  static assert(moduleDescription.aggregates.where.typeIsNot!"TestStructure".exists);
+  static assert(moduleDescription.aggregates.where.typeIsNot!"my.module.TestStructure".exists);
 ```
 
 # License

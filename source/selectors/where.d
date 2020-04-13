@@ -30,6 +30,13 @@ struct Where(T : U[], U) {
     return this;
   }
 
+  /// Filter by type name
+  auto typeIsNot(string name)() {
+    list = list.filter!(a => a.type.name != name && a.type.fullyQualifiedName != name).array;
+
+    return this;
+  }
+
   /// Check if the filtered list has at least one value
   bool exists() {
     return list.length > 0;
@@ -91,6 +98,10 @@ unittest {
   items.where.typeIs!"TestStructure".exists.should.equal(true);
   items.where.typeIs!"selectors.where.TestStructure".exists.should.equal(true);
   items.where.typeIs!"selectors.where.OtherStructure".exists.should.equal(false);
+
+  items.where.typeIsNot!"TestStructure".exists.should.equal(false);
+  items.where.typeIsNot!"selectors.where.TestStructure".exists.should.equal(false);
+  items.where.typeIsNot!"selectors.where.OtherStructure".exists.should.equal(true);
 }
 
 /// Can iterate over filtered values

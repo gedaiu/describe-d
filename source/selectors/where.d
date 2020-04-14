@@ -259,7 +259,10 @@ struct Where(T : U[], string path, RootType_, U) {
 
   /// Returns all items that match at least one value
   auto isAnyOf(T...)() {
-    enum string[] names = [ T ];
+    string[] names;
+    static foreach(t; T) {
+      names ~= t;
+    }
 
     bool aff(const U item) pure {
       mixin(`return names.canFind(item` ~ path ~ `);`);

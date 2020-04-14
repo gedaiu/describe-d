@@ -57,10 +57,10 @@ The library provides the `where` structure which allows you to filter the `descr
   }
 
   /// Check that there is a method with the string attribute "test"
-  static assert(describe!Test.methods.where.attribute!`"test"`.exists);
+  static assert(describe!Test.methods.where.any.attributes.name.equal!`"test"`.exists);
 
   /// Iterate over the methods with the "test" attribute
-  static foreach(method; describe!Test.methods.where.attribute!`"test"`) {
+  static foreach(method; describe!Test.methods.where.any.attributes.name.equal!`"test"`) {
     ...
   }
 ```
@@ -72,18 +72,32 @@ The types can be queried by `name` or by the `fullyQualifiedName`
 ```d
   enum moduleDescription = describe!(my.module);
 
-  static assert(moduleDescription.aggregates.where.typeIs!"TestStructure".exists);
-  static assert(moduleDescription.aggregates.where.typeIs!"my.module.TestStructure".exists);
+  enum containsAnyTestStructure = moduleDescription.aggregates
+    .where.type.name
+    .equal!"TestStructure"
+    .exists;
 
-  static assert(moduleDescription.aggregates.where.typeIsAnyOf!("TestStructure", "TestClass").exists);
-  static assert(moduleDescription.aggregates.where.typeIsAnyOf!("my.module.TestStructure", "my.module.TestClass").exists);
+  enum containsMyTestStructure = moduleDescription.aggregates
+    .where.type.fullyQualifiedName
+    .equal!"my.module.TestStructure"
+    .exists;
 
-  /// negations
-  static assert(moduleDescription.aggregates.where.typeIsNot!"TestStructure".exists);
-  static assert(moduleDescription.aggregates.where.typeIsNot!"my.module.TestStructure".exists);
+  enum testAggregates = moduleDescription.aggregates
+    .where.type.name
+    .isAnyOf!("TestStructure", "TestClass");
 
-  static assert(moduleDescription.aggregates.where.typeIsNotAnyOf!("TestStructure", "TestClass").exists);
-  static assert(moduleDescription.aggregates.where.typeIsNotAnyOf!("my.module.TestStructure", "my.module.TestClass").exists);
+```
+
+### negation
+
+You can use the `not` method to negate any filter:
+
+```d
+  enum moduleDescription = describe!(my.module);
+
+  enum releaseStructures = moduleDescription.aggregates
+    .where.type.name
+    .not.equal!"TestStructure";
 ```
 
 # License

@@ -57,10 +57,10 @@ The library provides the `where` structure which allows you to filter the `descr
   }
 
   /// Check that there is a method with the string attribute "test"
-  static assert(describe!Test.methods.where.any.attributes.name.equal!`"test"`.exists);
+  static assert(describe!Test.methods.where!"attributes[i].name".equal(`"test"`).exists);
 
   /// Iterate over the methods with the "test" attribute
-  static foreach(method; describe!Test.methods.where.any.attributes.name.equal!`"test"`) {
+  static foreach(method; describe!Test.methods.where!"attributes[i].name".equal(`"test"`)) {
     ...
   }
 ```
@@ -73,18 +73,18 @@ The types can be queried by `name` or by the `fullyQualifiedName`
   enum moduleDescription = describe!(my.module);
 
   enum containsAnyTestStructure = moduleDescription.aggregates
-    .where.type.name
-    .equal!"TestStructure"
+    .where!"type.name"
+    .equal("TestStructure")
     .exists;
 
   enum containsMyTestStructure = moduleDescription.aggregates
-    .where.type.fullyQualifiedName
-    .equal!"my.module.TestStructure"
+    .where!"type.fullyQualifiedName"
+    .equal("my.module.TestStructure")
     .exists;
 
   enum testAggregates = moduleDescription.aggregates
-    .where.type.name
-    .isAnyOf!("TestStructure", "TestClass");
+    .where!"type.name"
+    .isAnyOf(["TestStructure", "TestClass"]);
 
 ```
 
@@ -96,8 +96,8 @@ You can use the `not` method to negate any filter:
   enum moduleDescription = describe!(my.module);
 
   enum releaseStructures = moduleDescription.aggregates
-    .where.type.name
-    .not.equal!"TestStructure";
+    .where!"type.name"
+    .not.equal("TestStructure");
 ```
 
 # License

@@ -41,15 +41,25 @@ struct Callable {
 
   ///
   size_t overloadIndex;
+
+  ///
+  Variadic variadicStyle;
 }
 
 /// Describes a callable
 Callable describeCallable(alias T, size_t overloadIndex = 0)() if(isCallable!T) {
   Parameter[] params;
-  params.length = arity!T;
+
+  static if(__traits(compiles, arity!T)) {
+    params.length = arity!T;
+  }
 
   size_t i;
   static foreach (name; ParameterIdentifierTuple!T) {
+    if(i >= params.length) {
+      params.length = params.length + 1;
+    }
+
     params[i].name = name;
     i++;
   }
@@ -112,7 +122,8 @@ Callable describeCallable(alias T, size_t overloadIndex = 0)() if(isCallable!T) 
     Location(location[0], location[1], location[2]),
     __traits(getProtection, T).toProtection,
     __traits(isStaticFunction, T),
-    overloadIndex
+    overloadIndex,
+    variadicFunctionStyle!T
   );
 }
 
@@ -129,6 +140,20 @@ unittest {
   result.location.file.should.equal("source/introspection/callable.d");
   result.location.line.should.be.greaterThan(0);
   result.location.column.should.equal(8);
+  result.variadicStyle.should.equal(Variadic.no);
+}
+
+/// It should describe a function with variadic args
+unittest {
+  void test(char c, ...) { }
+
+  auto result = describeCallable!test;
+
+  result.parameters.length.should.equal(1);
+  result.parameters[0].name.should.equal("c");
+  result.parameters[0].type.name.should.equal("char");
+
+  result.variadicStyle.should.equal(Variadic.d);
 }
 
 /// It should describe a function with no params that returns ref int

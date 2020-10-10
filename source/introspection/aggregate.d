@@ -311,6 +311,7 @@ unittest {
   result.methods.map!(a => a.name).array.should.equal(["a", "a", "toString", "toHash", "opCmp", "opEquals", "factory"]);
 
   result.methods[0].name.should.equal("a");
+  result.methods[0].overloadIndex.should.equal(0);
   result.methods[0].isStatic.should.equal(false);
   result.methods[0].protection.should.equal(Protection.public_);
   result.methods[0].type.name.should.equal("void(int)");
@@ -318,6 +319,7 @@ unittest {
   result.methods[0].parameters[0].type.name.should.equal("int");
 
   result.methods[1].name.should.equal("a");
+  result.methods[1].overloadIndex.should.equal(1);
   result.methods[1].isStatic.should.equal(false);
   result.methods[1].protection.should.equal(Protection.public_);
   result.methods[1].type.name.should.equal("void(string)");

@@ -38,6 +38,9 @@ struct Callable {
 
   ///
   bool isStatic;
+
+  ///
+  size_t overloadIndex;
 }
 
 /// Describes a callable
@@ -108,7 +111,8 @@ Callable describeCallable(alias T, size_t overloadIndex = 0)() if(isCallable!T) 
     attributes,
     Location(location[0], location[1], location[2]),
     __traits(getProtection, T).toProtection,
-    __traits(isStaticFunction, T)
+    __traits(isStaticFunction, T),
+    overloadIndex
   );
 }
 

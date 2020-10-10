@@ -150,8 +150,6 @@ unittest {
 
 /// It should be able to describe the std.stdio module
 unittest {
-  import std.stdio;
-
   auto result = describeModule!(std.stdio);
 
   result.name.should.equal("module stdio");

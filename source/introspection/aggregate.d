@@ -339,9 +339,27 @@ unittest {
   auto result = describeAggregate!Test;
 
   result.name.should.equal("Test");
-  result.methods[0].attributes.length.should.equal(2);
+  result.methods[0].attributes.length.should.equal(3);
   result.methods[0].attributes[0].name.should.equal(`"attribute1"`);
   result.methods[0].attributes[0].type.name.should.equal(`string`);
+}
+
+/// It should describe a struct @property
+unittest {
+  int attr(int) { return 0; }
+
+  struct Test {
+    @property string name();
+  }
+
+  auto result = describeAggregate!Test;
+
+  result.name.should.equal("Test");
+  result.methods[0].attributes.length.should.equal(2);
+  result.methods[0].attributes[0].name.should.equal(`"@property"`);
+  result.methods[0].attributes[0].type.name.should.equal(`string`);
+  result.methods[0].attributes[1].name.should.equal(`"@system"`);
+  result.methods[0].attributes[1].type.name.should.equal(`string`);
 }
 
 /// It should describe static struct method
@@ -455,7 +473,7 @@ unittest {
   }
 
   enum result = describeAggregate!(MockClass, true);
-  result.methods[0].attributes.length.should.equal(3);
+  result.methods[0].attributes.length.should.equal(5);
   result.methods[0].attributes[0].name.should.equal("mapper");
   result.methods[0].attributes[0].type.name.should.equal("nothrow @trusted void()");
   result.methods[0].attributes[1].name.should.equal("Mapper");

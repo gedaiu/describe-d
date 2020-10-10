@@ -101,7 +101,7 @@ Callable describeCallable(alias T, size_t overloadIndex = 0)() if(isCallable!T) 
     enum location = tuple("unknown", 0, 0);
   }
 
-  enum attributes = describeAttributeList!(__traits(getAttributes, T));
+  enum attributes = describeAttributeList!(__traits(getAttributes, T)) ~ describeAttributeList!(__traits(getFunctionAttributes, T));
 
   return Callable(
     __traits(identifier, T),
@@ -187,11 +187,24 @@ unittest {
 
   auto result = describeCallable!test;
 
-  result.attributes.length.should.equal(2);
+  result.attributes.length.should.equal(6);
   result.attributes[0].name.should.equal(`"attribute1"`);
   result.attributes[0].type.name.should.equal(`string`);
+
   result.attributes[1].name.should.equal("0");
   result.attributes[1].type.name.should.equal(`int`);
+
+  result.attributes[2].name.should.equal(`"pure"`);
+  result.attributes[2].type.name.should.equal(`string`);
+
+  result.attributes[3].name.should.equal(`"nothrow"`);
+  result.attributes[3].type.name.should.equal(`string`);
+
+  result.attributes[4].name.should.equal(`"@nogc"`);
+  result.attributes[4].type.name.should.equal(`string`);
+
+  result.attributes[5].name.should.equal(`"@safe"`);
+  result.attributes[5].type.name.should.equal(`string`);
 }
 
 /// It should find the parameter storage classes

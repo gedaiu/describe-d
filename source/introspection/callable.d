@@ -113,18 +113,33 @@ Callable describeCallable(alias T, size_t overloadIndex = 0)() if(isCallable!T) 
 
   enum attributes = describeAttributeList!(__traits(getAttributes, T)) ~ describeAttributeList!(__traits(getFunctionAttributes, T));
 
-  return Callable(
-    __traits(identifier, T),
-    describeType!(typeof(T)),
-    describeType!(ReturnType!T),
-    params,
-    attributes,
-    Location(location[0], location[1], location[2]),
-    __traits(getProtection, T).toProtection,
-    __traits(isStaticFunction, T),
-    overloadIndex,
-    variadicFunctionStyle!T
-  );
+  static if(__traits(compiles, describeType!(typeof(T)))) {
+    return Callable(
+      __traits(identifier, T),
+      describeType!(typeof(T)),
+      describeType!(ReturnType!T),
+      params,
+      attributes,
+      Location(location[0], location[1], location[2]),
+      __traits(getProtection, T).toProtection,
+      __traits(isStaticFunction, T),
+      overloadIndex,
+      variadicFunctionStyle!T
+    );
+  } else {
+    return Callable(
+      __traits(identifier, T),
+      Type(),
+      describeType!(ReturnType!T),
+      params,
+      attributes,
+      Location(location[0], location[1], location[2]),
+      __traits(getProtection, T).toProtection,
+      __traits(isStaticFunction, T),
+      overloadIndex,
+      variadicFunctionStyle!T
+    );
+  }
 }
 
 /// It should describe a function with no params that returns void

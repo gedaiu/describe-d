@@ -49,9 +49,8 @@ struct WhereAnyProxy(T: U[], U) {
 
   /// Does nothing but improve code readability
   auto and() {
-
-    foreach(localWhere; list) {
-      localWhere.and;
+    foreach(ref localWhere; list) {
+      localWhere = localWhere.and;
     }
 
     return this;
@@ -59,9 +58,8 @@ struct WhereAnyProxy(T: U[], U) {
 
   /// Negates the next filter
   auto not() {
-
-    foreach(localWhere; list) {
-      localWhere.not;
+    foreach(ref localWhere; list) {
+      localWhere = localWhere.not;
     }
 
     return this;
@@ -69,9 +67,8 @@ struct WhereAnyProxy(T: U[], U) {
 
   /// Check equality
   auto equal(M value)() {
-
     foreach(index, localWhere; list) {
-      list[index].equal!value;
+      list[index] = list[index].equal!value;
     }
 
     return this;
@@ -79,8 +76,8 @@ struct WhereAnyProxy(T: U[], U) {
 
   /// Returns all items that match at least one value
   auto isAnyOf(T...)() {
-    foreach(localWhere; list) {
-      localWhere.isAnyOf!T;
+    foreach(ref localWhere; list) {
+      localWhere = localWhere.isAnyOf!T;
     }
 
     return this;
@@ -141,9 +138,7 @@ struct WhereAny(T : U[], string path, U) {
   }
 
   auto dispatch(string name)() {
-    mixin(`
-    return whereAnyProxy(list.map!(item => where(item, item.` ~ name ~ `)).array);
-    `);
+    mixin(`return whereAnyProxy(list.map!(item => where!(U, typeof(item.` ~ name ~ `))(item, item.` ~ name ~ `)).array);`);
   }
 
   static if(isAggregateType!M) {
@@ -249,12 +244,17 @@ struct Where(T : U[], string path, RootType_, U) {
     }
 
     if(negation) {
-      list = list.filter!neg.array;
+      this.list = list.filter!neg.array.dup;
     } else {
-      list = list.filter!aff.array;
+      this.list = list.filter!aff.array.dup;
     }
 
-    return this;
+    alias TT = typeof(this);
+    static if(is(RootType == void)) {
+      return TT(this.list);
+    } else {
+      return TT(this.list, this.rootItem);
+    }
   }
 
   /// Returns all items that match at least one value
@@ -273,12 +273,17 @@ struct Where(T : U[], string path, RootType_, U) {
     }
 
     if(negation) {
-      list = list.filter!neg.array;
+      list = list.filter!neg.array.dup;
     } else {
-      list = list.filter!aff.array;
+      list = list.filter!aff.array.dup;
     }
 
-    return this;
+    alias TT = typeof(this);
+    static if(is(RootType == void)) {
+      return TT(this.list);
+    } else {
+      return TT(this.list, this.rootItem);
+    }
   }
 
   /// Check if the filtered list has at least one value
@@ -328,6 +333,9 @@ unittest {
 
   //hasAttribute.should.equal(true);
   items.where.any.attributes.name.equal!"other".exists.should.equal(false);
+  auto tmp = items.where.any.attributes.name.isAnyOf!(["other", "attributes"]);
+
+  tmp.exists.should.equal(false);
 }
 
 version(unittest) { struct TestStructure { } }
@@ -388,11 +396,21 @@ unittest {
 }
 
 /// query the introspection result
-auto where(T)(T list) {
+auto where(T)(T list) if(isArray!T){
   return Where!(T, "", void)(list);
 }
 
-/// query the introspection result
-auto where(T, U)(T rootItem, U list) {
+/// ditto
+auto where(T)(T item) if(!isArray!T){
+  return where([item]);
+}
+
+/// ditto
+auto where(T, U)(T rootItem, U list) if(isArray!U){
   return Where!(U, "", T)(list, rootItem);
+}
+
+/// ditto
+auto where(T, U)(T rootItem, U item) if(!isArray!U){
+  return where(rootItem, [item]);
 }

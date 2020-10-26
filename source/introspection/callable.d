@@ -111,30 +111,46 @@ Callable describeCallable(alias T, size_t overloadIndex = 0)() if(isCallable!T) 
     enum location = tuple("unknown", 0, 0);
   }
 
-  enum attributes = describeAttributeList!(__traits(getAttributes, T)) ~ describeAttributeList!(__traits(getFunctionAttributes, T));
+  static if(__traits(compiles, describeAttributeList!(__traits(getAttributes, T)) ~ describeAttributeList!(__traits(getFunctionAttributes, T)))) {
+    enum attributes = describeAttributeList!(__traits(getAttributes, T)) ~ describeAttributeList!(__traits(getFunctionAttributes, T));
+  } else {
+    enum attributes = [];
+  }
+
+  static if(__traits(compiles, __traits(identifier, T))) {
+    enum name = __traits(identifier, T);
+  } else {
+    enum name = "";
+  }
+
+  static if(__traits(compiles, __traits(getProtection, T).toProtection)) {
+    auto protection = __traits(getProtection, T).toProtection;
+  } else {
+    Protection protection;
+  }
 
   static if(__traits(compiles, describeType!(typeof(T)))) {
     return Callable(
-      __traits(identifier, T),
+      name,
       describeType!(typeof(T)),
       describeType!(ReturnType!T),
       params,
       attributes,
       Location(location[0], location[1], location[2]),
-      __traits(getProtection, T).toProtection,
+      protection,
       __traits(isStaticFunction, T),
       overloadIndex,
       variadicFunctionStyle!T
     );
   } else {
     return Callable(
-      __traits(identifier, T),
+      name,
       Type(),
       describeType!(ReturnType!T),
       params,
       attributes,
       Location(location[0], location[1], location[2]),
-      __traits(getProtection, T).toProtection,
+      protection,
       __traits(isStaticFunction, T),
       overloadIndex,
       variadicFunctionStyle!T
@@ -253,6 +269,24 @@ unittest {
 
   auto result = describeCallable!test;
 
+  result.parameters[0].isScope.should.equal(true);
+  result.parameters[1].isOut.should.equal(true);
+  result.parameters[2].isRef.should.equal(true);
+  result.parameters[3].isLazy.should.equal(true);
+  result.parameters[4].isReturn.should.equal(true);
+}
+
+/// It should describe an aliased function
+unittest {
+  void test(scope Object, out int, ref int, lazy int, return Object) { }
+
+  auto testDescribe(T)(T func){
+    return describeCallable!T;
+  }
+
+  auto result = testDescribe(&test);
+
+  result.name.should.equal("");
   result.parameters[0].isScope.should.equal(true);
   result.parameters[1].isOut.should.equal(true);
   result.parameters[2].isRef.should.equal(true);

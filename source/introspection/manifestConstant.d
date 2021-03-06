@@ -62,14 +62,11 @@ ManifestConstant describeManifestConstant(alias T, string member)() {
 }
 
 /// Check if a member is manifest constant
-bool isManifestConstant(T, string name)() {
-  mixin(`return is(typeof(T.init.` ~ name ~ `)) && !is(typeof(&T.init.` ~ name ~ `));`);
-}
+enum isManifestConstant(T, string name) = isManifestConstant!(__traits(getMember, T, name));
 
 /// ditto
-bool isManifestConstant(alias T)() {
-  return is(typeof(T)) && !is(typeof(&T));
-}
+enum isManifestConstant(alias symbol) = __traits(compiles, { enum e = symbol; }) &&
+  !__traits(compiles, { const ptr = &symbol; });
 
 /// it should describe a public manifest constant
 unittest {

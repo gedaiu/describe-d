@@ -4,6 +4,11 @@ import std.algorithm;
 import std.array;
 import std.traits;
 
+
+import introspection.callable;
+import introspection.attribute;
+import introspection.parameter;
+
 version(unittest) {
   import fluent.asserts;
 }
@@ -153,6 +158,10 @@ struct WhereAny(T : U[], string path, U) {
     }
   }
 }
+
+alias WhereAnyCallableParameters = WhereAny!(Callable[], ".parameters");
+alias WhereParameters = Where!(Callable[], ".parameters", Callable);
+alias WhereAnyProxyCallableParameters = WhereAnyProxy!(WhereParameters[]);
 
 ///
 struct Where(T : U[], string path, RootType_, U) {
@@ -319,81 +328,76 @@ struct Where(T : U[], string path, RootType_, U) {
 }
 
 /// Filter callables by attribute name
-unittest {
-  import introspection.callable;
-  import introspection.attribute;
+// unittest {
+//   @("test")
+//   void test() { }
 
-  @("test")
-  void test() { }
+//   enum item = describeCallable!test;
+//   enum items = [ item ];
 
-  enum item = describeCallable!test;
-  enum items = [ item ];
+//   ///auto hasAttribute = items.where.any.attributes.name.equal!`"test"`.exists;
 
-  ///auto hasAttribute = items.where.any.attributes.name.equal!`"test"`.exists;
+//   //hasAttribute.should.equal(true);
+//   items.where.any.attributes.name.equal!"other".exists.should.equal(false);
+//   auto tmp = items.where.any.attributes.name.isAnyOf!(["other", "attributes"]);
 
-  //hasAttribute.should.equal(true);
-  items.where.any.attributes.name.equal!"other".exists.should.equal(false);
-  auto tmp = items.where.any.attributes.name.isAnyOf!(["other", "attributes"]);
+//   tmp.exists.should.equal(false);
+// }
 
-  tmp.exists.should.equal(false);
-}
+// version(unittest) { struct TestStructure { } }
 
-version(unittest) { struct TestStructure { } }
+// /// Filter callables by type name
+// unittest {
+//   import introspection.aggregate;
 
-/// Filter callables by type name
-unittest {
-  import introspection.aggregate;
+//   enum item = describeAggregate!TestStructure;
+//   enum items = [ item ];
 
-  enum item = describeAggregate!TestStructure;
-  enum items = [ item ];
+//   items.where.type.name.equal!"TestStructure".and.exists.should.equal(true);
+//   items.where.type.fullyQualifiedName.equal!"selectors.where.TestStructure".and.exists.should.equal(true);
+//   items.where.type.fullyQualifiedName.equal!"selectors.where.OtherStructure".and.exists.should.equal(false);
 
-  items.where.type.name.equal!"TestStructure".and.exists.should.equal(true);
-  items.where.type.fullyQualifiedName.equal!"selectors.where.TestStructure".and.exists.should.equal(true);
-  items.where.type.fullyQualifiedName.equal!"selectors.where.OtherStructure".and.exists.should.equal(false);
+//   items.where.type.name.isAnyOf!"TestStructure".and.exists.should.equal(true);
+//   items.where.type.fullyQualifiedName.isAnyOf!"selectors.where.TestStructure".and.exists.should.equal(true);
+//   items.where.type.fullyQualifiedName.isAnyOf!"selectors.where.OtherStructure".and.exists.should.equal(false);
 
-  items.where.type.name.isAnyOf!"TestStructure".and.exists.should.equal(true);
-  items.where.type.fullyQualifiedName.isAnyOf!"selectors.where.TestStructure".and.exists.should.equal(true);
-  items.where.type.fullyQualifiedName.isAnyOf!"selectors.where.OtherStructure".and.exists.should.equal(false);
+//   items.where.type.name.not.equal!"TestStructure".and.exists.should.equal(false);
+//   items.where.type.fullyQualifiedName.not.equal!"selectors.where.TestStructure".and.exists.should.equal(false);
+//   items.where.type.fullyQualifiedName.not.equal!"selectors.where.OtherStructure".and.exists.should.equal(true);
 
-  items.where.type.name.not.equal!"TestStructure".and.exists.should.equal(false);
-  items.where.type.fullyQualifiedName.not.equal!"selectors.where.TestStructure".and.exists.should.equal(false);
-  items.where.type.fullyQualifiedName.not.equal!"selectors.where.OtherStructure".and.exists.should.equal(true);
+//   items.where.type.name.not.isAnyOf!"TestStructure".and.exists.should.equal(false);
+//   items.where.type.fullyQualifiedName.not.isAnyOf!"selectors.where.TestStructure".and.exists.should.equal(false);
+//   items.where.type.fullyQualifiedName.not.isAnyOf!"selectors.where.OtherStructure".and.exists.should.equal(true);
+// }
 
-  items.where.type.name.not.isAnyOf!"TestStructure".and.exists.should.equal(false);
-  items.where.type.fullyQualifiedName.not.isAnyOf!"selectors.where.TestStructure".and.exists.should.equal(false);
-  items.where.type.fullyQualifiedName.not.isAnyOf!"selectors.where.OtherStructure".and.exists.should.equal(true);
-}
+// /// Can iterate over filtered values
+// unittest {
+//   @("test")
+//   void foo() { }
 
-/// Can iterate over filtered values
-unittest {
-  import introspection.callable;
+//   enum item = describeCallable!foo;
+//   enum items = [ item ];
 
-  @("test")
-  void foo() { }
+//   /// iterate without index
+//   size_t index;
+//   foreach(element; items.where.any.attributes.name.equal!`"test"`) {
+//     index.should.equal(0);
+//     element.name.should.equal("foo");
+//     index++;
+//   }
 
-  enum item = describeCallable!foo;
-  enum items = [ item ];
+//   index = 0;
+//   foreach(_; items.where.any.attributes.name.equal!`"other"`) {
+//     index++;
+//   }
+//   index.should.equal(0);
 
-  /// iterate without index
-  size_t index;
-  foreach(element; items.where.any.attributes.name.equal!`"test"`) {
-    index.should.equal(0);
-    element.name.should.equal("foo");
-    index++;
-  }
-
-  index = 0;
-  foreach(_; items.where.any.attributes.name.equal!`"other"`) {
-    index++;
-  }
-  index.should.equal(0);
-
-  /// iterate with index
-  foreach(i, element; items.where.any.attributes.name.equal!`"test"`) {
-    i.should.equal(0);
-    element.name.should.equal("foo");
-  }
-}
+//   /// iterate with index
+//   foreach(i, element; items.where.any.attributes.name.equal!`"test"`) {
+//     i.should.equal(0);
+//     element.name.should.equal("foo");
+//   }
+// }
 
 /// query the introspection result
 auto where(T)(T list) if(isArray!T){

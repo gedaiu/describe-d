@@ -156,7 +156,7 @@ unittest {
   result.fullyQualifiedName.should.equal("std.stdio");
 
   result.functions.length.should.equal(22);
-  result.functions[0].name.should.equal("flockfile");
+  result.functions[0].name.should.equal("fputc_unlocked");
 
-  result.templates.length.should.equal(15);
+  result.templates.length.should.equal(11);
 }

@@ -59,8 +59,6 @@ Module describe(alias T)() if(__traits(isModule, T)) {
 
 /// It should describe a function
 unittest {
-  void test() { }
-
   enum result = describe!(introspection.template_);
 
   result.name.should.equal("module template_");

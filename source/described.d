@@ -49,7 +49,7 @@ unittest {
   enum result = describe!(Test.test);
 
   result.name.should.equal("test");
-  result.type.name.should.equal("void()");
+  result.type.name.should.equal("@system void()");
 }
 
 /// Describe a build in type

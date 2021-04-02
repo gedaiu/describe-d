@@ -59,10 +59,10 @@ unittest {
 
   result.length.should.equal(1);
 
-  result[0].type.name.should.equal("void()");
+  result[0].type.name.should.equal("@system void()");
 
   result[0].attributes.length.should.equal(1);
-  result[0].attributes[0].name.should.equal(`"some attribute"`);
+  result[0].attributes[0].name.should.equal(`some attribute`);
 
   result[0].location.file.should.equal("source/introspection/unittest_.d");
   result[0].location.line.should.be.greaterThan(0);

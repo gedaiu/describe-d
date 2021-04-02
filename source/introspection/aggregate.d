@@ -161,7 +161,7 @@ unittest {
   result.name.should.equal("Test");
   result.attributes.length.should.equal(2);
 
-  result.attributes[0].name.should.equal(`"attribute1"`);
+  result.attributes[0].name.should.equal(`attribute1`);
   result.attributes[0].type.name.should.equal(`string`);
 
   result.attributes[1].name.should.equal("0");
@@ -241,7 +241,7 @@ unittest {
   result.name.should.equal("Test");
 
   result.properties[0].attributes.length.should.equal(2);
-  result.properties[0].attributes[0].name.should.equal(`"attribute1"`);
+  result.properties[0].attributes[0].name.should.equal(`attribute1`);
   result.properties[0].attributes[0].type.name.should.equal(`string`);
 }
 
@@ -259,12 +259,12 @@ unittest {
   result.methods[0].name.should.equal("a");
   result.methods[0].isStatic.should.equal(false);
   result.methods[0].protection.should.equal(Protection.public_);
-  result.methods[0].type.name.should.equal("void()");
+  result.methods[0].type.name.should.equal("@system void()");
 
   result.methods[1].name.should.equal("b");
   result.methods[1].isStatic.should.equal(false);
   result.methods[1].protection.should.equal(Protection.public_);
-  result.methods[1].type.name.should.equal("void()");
+  result.methods[1].type.name.should.equal("@system void()");
 }
 
 /// It should find all methods from a class
@@ -284,17 +284,17 @@ unittest {
   result.methods[0].name.should.equal("a");
   result.methods[0].isStatic.should.equal(false);
   result.methods[0].protection.should.equal(Protection.public_);
-  result.methods[0].type.name.should.equal("void()");
+  result.methods[0].type.name.should.equal("@system void()");
 
   result.methods[1].name.should.equal("b");
   result.methods[1].isStatic.should.equal(false);
   result.methods[1].protection.should.equal(Protection.protected_);
-  result.methods[1].type.name.should.equal("void()");
+  result.methods[1].type.name.should.equal("@system void()");
 
   result.methods[2].name.should.equal("c");
   result.methods[2].isStatic.should.equal(false);
   result.methods[2].protection.should.equal(Protection.private_);
-  result.methods[2].type.name.should.equal("void()");
+  result.methods[2].type.name.should.equal("@system void()");
 }
 
 /// It should find overloaded methods
@@ -340,7 +340,7 @@ unittest {
 
   result.name.should.equal("Test");
   result.methods[0].attributes.length.should.equal(3);
-  result.methods[0].attributes[0].name.should.equal(`"attribute1"`);
+  result.methods[0].attributes[0].name.should.equal(`attribute1`);
   result.methods[0].attributes[0].type.name.should.equal(`string`);
 }
 
@@ -356,9 +356,9 @@ unittest {
 
   result.name.should.equal("Test");
   result.methods[0].attributes.length.should.equal(2);
-  result.methods[0].attributes[0].name.should.equal(`"@property"`);
+  result.methods[0].attributes[0].name.should.equal(`@property`);
   result.methods[0].attributes[0].type.name.should.equal(`string`);
-  result.methods[0].attributes[1].name.should.equal(`"@system"`);
+  result.methods[0].attributes[1].name.should.equal(`@system`);
   result.methods[0].attributes[1].type.name.should.equal(`string`);
 }
 
@@ -477,5 +477,5 @@ unittest {
   result.methods[0].attributes[0].name.should.equal("mapper");
   result.methods[0].attributes[0].type.name.should.equal("nothrow @trusted void()");
   result.methods[0].attributes[1].name.should.equal("Mapper");
-  result.methods[0].attributes[2].name.should.equal(`"mapper"`);
+  result.methods[0].attributes[2].name.should.equal(`mapper`);
 }

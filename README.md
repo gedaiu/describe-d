@@ -46,59 +46,11 @@ D type using `fromType`:
 
 ## Filtering
 
-The library provides the `where` structure which allows you to filter the `describe` result.
+The library provides the `has` module which allows you to filter various `describe` results.
 
-### by attribute name
+## Asserts
 
-```d
-  struct Test {
-    @("test") void foo() { }
-    @("other") void other() { }
-  }
-
-  /// Check that there is a method with the string attribute "test"
-  static assert(describe!Test.methods.where.any.attributes.name.equal!`"test"`.exists);
-
-  /// Iterate over the methods with the "test" attribute
-  static foreach(method; describe!Test.methods.where.any.attributes.name.equal!`"test"`) {
-    ...
-  }
-```
-
-### by type
-
-The types can be queried by `name` or by the `fullyQualifiedName`
-
-```d
-  enum moduleDescription = describe!(my.module);
-
-  enum containsAnyTestStructure = moduleDescription.aggregates
-    .where.type.name
-    .equal!"TestStructure"
-    .exists;
-
-  enum containsMyTestStructure = moduleDescription.aggregates
-    .where.type.fullyQualifiedName
-    .equal!"my.module.TestStructure"
-    .exists;
-
-  enum testAggregates = moduleDescription.aggregates
-    .where.type.name
-    .isAnyOf!("TestStructure", "TestClass");
-
-```
-
-### negation
-
-You can use the `not` method to negate any filter:
-
-```d
-  enum moduleDescription = describe!(my.module);
-
-  enum releaseStructures = moduleDescription.aggregates
-    .where.type.name
-    .not.equal!"TestStructure";
-```
+The library provides the `has` module which allows you to check states of the various `describe` results.
 
 # License
 

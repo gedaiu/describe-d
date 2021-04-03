@@ -7,6 +7,7 @@ import introspection.module_;
 import introspection.enum_;
 
 public import selectors.where;
+public import selectors.has;
 
 import std.traits;
 

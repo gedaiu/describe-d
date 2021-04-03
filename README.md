@@ -46,7 +46,7 @@ D type using `fromType`:
 
 ## Filtering
 
-The library provides the `has` module which allows you to filter various `describe` results.
+The library provides the `where` module which allows you to filter various `describe` results.
 
 ## Asserts
 

@@ -6,12 +6,18 @@
 	"description": "Library that provides structures for code introspection",
 	"license": "MIT",
 	"name": "describe-d",
-
-	"configurations": [{
-		"name": "trial",
-		"dependencies": {
-				"fluent-asserts": "~>0.13.3"
-			}
+	"configurations": [
+		{
+			"name": "unittest",
+			"targetType": "autodetect",
+			"dependencies": {
+				"fluent-asserts": "*",
+				"trial": "0.8.0-beta.3"
+			},
+			"versions": [
+				"JsonLineNumbers",
+				"VibeJsonFieldNames"
+			]
 		}
 	]
 }

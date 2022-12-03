@@ -2,6 +2,7 @@ module introspection.enum_;
 
 import std.traits;
 import std.string;
+import std.conv;
 
 import introspection.type;
 import introspection.location;
@@ -38,17 +39,21 @@ struct Enum {
   Protection protection;
 }
 
-////
+///
 Enum describeEnum(T)() if(is(T == enum)){
   Enum enum_;
 
+  enum type = describeType!T;
+
   enum_.name = T.stringof;
+  enum_.type = type;
 
-  static foreach (i, member; EnumMembers!T) {
-    enum_.members ~= EnumMember(__traits(identifier, EnumMembers!T[i]), member.stringof);
-  }
+  static foreach (i, member; EnumMembers!T) {{
+    mixin(`string value = (cast(OriginalType!T) T.` ~ member.stringof ~ `).to!string;`);
 
-  enum_.type = describeType!T;
+    enum_.members ~= EnumMember(__traits(identifier, EnumMembers!T[i]), value);
+  }}
+
 
   auto location = __traits(getLocation, T);
 
@@ -73,7 +78,7 @@ unittest {
 
   result.members.length.should.equal(3);
   result.members[0].name.should.equal("a");
-  result.members[0].value.should.equal(`"A"`);
+  result.members[0].value.should.equal(`A`);
 
   result.location.file.should.equal("source/introspection/enum_.d");
   result.location.line.should.be.greaterThan(0);

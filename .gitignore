@@ -19,3 +19,4 @@ dub.selections.json
 trial_root.d
 describe-d-test-trial
 libdescribe-d.a
+describe-d-test-unittest

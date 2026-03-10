@@ -2,7 +2,7 @@
 	"authors": [
 		"Szabo Bogdan"
 	],
-	"copyright": "Copyright © 2020, Szabo Bogdan",
+	"copyright": "Copyright © 2026, Szabo Bogdan",
 	"description": "Library that provides structures for code introspection",
 	"license": "MIT",
 	"name": "describe-d",
@@ -15,7 +15,7 @@
 			"name": "unittest",
 			"targetType": "autodetect",
 			"dependencies": {
-        "fluent-asserts": "2.0.2",
+        "fluent-asserts": "2.0.1",
 				"trial": "~>1.0.1"
 			},
 			"versions": [
